@@ -163,6 +163,41 @@ test("category filters change the active button and rendered cards", async (t) =
   assert.equal(names(document).length, 2);
 });
 
+test("group-by category separates filtered activities and can be turned off", async (t) => {
+  const groupedActivities = {
+    "Soccer Club": {
+      ...activities["Soccer Club"],
+      schedule_details: { days: ["Friday"], start_time: "15:00", end_time: "17:00" },
+    },
+    "Art Club": {
+      ...activities["Coding Club"],
+      description: "Explore creative painting",
+      schedule_details: { days: ["Friday"], start_time: "15:00", end_time: "17:00" },
+    },
+  };
+  const { window, document, fetch } = await setup(t, { data: groupedActivities });
+  const groupBy = document.querySelector("#group-by");
+
+  groupBy.value = "category";
+  groupBy.dispatchEvent(new window.Event("change", { bubbles: true }));
+  assert.deepEqual(
+    Array.from(document.querySelectorAll(".activity-group-heading"), (node) => node.textContent),
+    ["Sports", "Arts"],
+  );
+  assert.deepEqual(names(document), ["Soccer Club", "Art Club"]);
+
+  document.querySelector('[data-day="Friday"]').click();
+  await settle();
+  assert.equal(fetch.mock.calls.at(-1).arguments[0], "/activities?day=Friday");
+  assert.deepEqual(names(document), ["Soccer Club", "Art Club"]);
+  assert.equal(document.querySelectorAll(".activity-group-heading").length, 2);
+
+  groupBy.value = "";
+  groupBy.dispatchEvent(new window.Event("change", { bubbles: true }));
+  assert.equal(document.querySelectorAll(".activity-group-heading").length, 0);
+  assert.deepEqual(names(document), ["Soccer Club", "Art Club"]);
+});
+
 test("day and time controls send encoded API filters", async (t) => {
   const { document, fetch } = await setup(t);
   document.querySelector('[data-day="Monday"]').click();
