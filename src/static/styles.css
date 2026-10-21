@@ -148,6 +148,12 @@ section h3 {
   width: 100%;
 }
 
+.activity-group-heading {
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+  color: var(--primary);
+}
+
 .activity-card {
   padding: 12px;
   border: 1px solid var(--border);
@@ -535,6 +541,16 @@ footer {
   font-weight: 600;
   color: var(--text-primary);
   font-size: 0.8rem;
+}
+
+#group-by {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  font-size: 0.85rem;
 }
 
 .category-filters,

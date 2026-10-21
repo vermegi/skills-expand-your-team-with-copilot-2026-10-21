@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("activity-search");
   const searchButton = document.getElementById("search-button");
   const categoryFilters = document.querySelectorAll(".category-filter");
+  const groupBySelect = document.getElementById("group-by");
   const dayFilters = document.querySelectorAll(".day-filter");
   const timeFilters = document.querySelectorAll(".time-filter");
 
@@ -37,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // State for activities and filters
   let allActivities = {};
   let currentFilter = "all";
+  let currentGroupBy = "";
   let searchQuery = "";
   let currentDay = "";
   let currentTimeRange = "";
@@ -468,10 +470,29 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Display filtered activities
-    Object.entries(filteredActivities).forEach(([name, details]) => {
-      renderActivityCard(name, details);
-    });
+    if (currentGroupBy === "category") {
+      Object.keys(activityTypes).forEach((activityType) => {
+        const groupActivities = Object.entries(filteredActivities).filter(
+          ([name, details]) =>
+            getActivityType(name, details.description) === activityType
+        );
+        if (groupActivities.length === 0) {
+          return;
+        }
+
+        const heading = document.createElement("h3");
+        heading.className = "activity-group-heading";
+        heading.textContent = activityTypes[activityType].label;
+        activitiesList.appendChild(heading);
+        groupActivities.forEach(([name, details]) => {
+          renderActivityCard(name, details);
+        });
+      });
+    } else {
+      Object.entries(filteredActivities).forEach(([name, details]) => {
+        renderActivityCard(name, details);
+      });
+    }
   }
 
   // Function to render a single activity card
@@ -601,6 +622,11 @@ document.addEventListener("DOMContentLoaded", () => {
   searchButton.addEventListener("click", (event) => {
     event.preventDefault();
     searchQuery = searchInput.value;
+    displayFilteredActivities();
+  });
+
+  groupBySelect.addEventListener("change", (event) => {
+    currentGroupBy = event.target.value;
     displayFilteredActivities();
   });
 
